@@ -45,7 +45,7 @@ license-url: https://www.apache.org/licenses/LICENSE-2.0
 repository-code: "https://github.com/Timeworx/geodcat-augmentation-eval"
 version: 1.0.0
 date-released: 2026-06-02
-# doi: 10.5281/zenodo.XXXXXXX   # fill in after first Zenodo deposit
+doi: 10.5281/zenodo.20598937
 preferred-citation:
   type: article
   title: "Bridging Semantic Web Standards and Computer Vision for AI-Ready Data in European Data Spaces"
