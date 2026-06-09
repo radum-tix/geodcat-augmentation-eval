@@ -48,6 +48,7 @@ import argparse
 import copy
 import csv
 import json
+import re
 import statistics
 import sys
 import time
@@ -238,6 +239,14 @@ def _read_locust_stats() -> list[LatencyRow]:
                     p99_ms=p99,
                     failures=n_fail,
                 ))
+    # Natural-sort by concurrency integer (c1, c10, c50 — not lexicographic
+    # c10, c1, c50 from the glob). Non-numeric tags ("all") sink to the end.
+    def _key(r: LatencyRow) -> tuple[int, int, str]:
+        m = re.match(r"c(\d+)$", r.concurrency)
+        if m:
+            return (0, int(m.group(1)), r.concurrency)
+        return (1, 0, r.concurrency)
+    out.sort(key=_key)
     return out
 
 
@@ -271,7 +280,7 @@ def _write_latency(rows: list[LatencyRow]) -> None:
 # --- Figure 1 ------------------------------------------------------------
 
 
-def _draw_panel_a(ax, latency_rows: list[LatencyRow]) -> None:
+def _draw_panel_a(ax, latency_rows: list[LatencyRow], *, show_title: bool = True) -> None:
     if latency_rows:
         labels = [r.concurrency for r in latency_rows]
         p50 = [r.p50_ms for r in latency_rows]
@@ -286,7 +295,8 @@ def _draw_panel_a(ax, latency_rows: list[LatencyRow]) -> None:
         ax.set_xticklabels(labels)
         ax.set_ylabel("time to 202 (ms)")
         ax.set_xlabel("concurrency")
-        ax.set_title("(a) POST /api/v1/segment/{type} 202 latency")
+        if show_title:
+            ax.set_title("(a) POST /api/v1/segment/{type} 202 latency")
         ax.legend()
     else:
         ax.text(
@@ -294,12 +304,13 @@ def _draw_panel_a(ax, latency_rows: list[LatencyRow]) -> None:
             "no locust stats — run\n`locust -f eval/locustfile.py …`",
             ha="center", va="center", transform=ax.transAxes,
         )
-        ax.set_title("(a) 202 latency — data missing")
+        if show_title:
+            ax.set_title("(a) 202 latency — data missing")
         ax.set_xticks([])
         ax.set_yticks([])
 
 
-def _draw_panel_b(ax, cost_rows: list[CostRow]) -> None:
+def _draw_panel_b(ax, cost_rows: list[CostRow], *, show_title: bool = True) -> None:
     xs = [r.input_triples_approx for r in cost_rows]
     p50s = [r.p50_ms for r in cost_rows]
     p95s = [r.p95_ms for r in cost_rows]
@@ -307,7 +318,8 @@ def _draw_panel_b(ax, cost_rows: list[CostRow]) -> None:
     ax.plot(xs, p95s, marker="x", linestyle="--", label="p95")
     ax.set_xlabel("input dataset-node leaves (≈ triples)")
     ax.set_ylabel("augment wall time (ms)")
-    ax.set_title("(b) Augmentation cost vs input size")
+    if show_title:
+        ax.set_title("(b) Augmentation cost vs input size")
     ax.legend()
     ax.grid(True, alpha=0.3)
 
@@ -335,15 +347,16 @@ def _try_draw_figure(cost_rows: list[CostRow], latency_rows: list[LatencyRow]) -
     plt.close(fig)
 
     # Single-panel PDFs — what the LaTeX paper actually \includegraphics.
-    # Vector output, sized to fit a two-column subfigure pair.
+    # Vector output, sized to fit a two-column subfigure pair. Titles are
+    # suppressed because the LaTeX \caption / \subcaption supplies them.
     fig_a, ax_a = plt.subplots(figsize=(5.5, 4))
-    _draw_panel_a(ax_a, latency_rows)
+    _draw_panel_a(ax_a, latency_rows, show_title=False)
     fig_a.tight_layout()
     fig_a.savefig(FIGURE_A_PDF, format="pdf", bbox_inches="tight")
     plt.close(fig_a)
 
     fig_b, ax_b = plt.subplots(figsize=(5.5, 4))
-    _draw_panel_b(ax_b, cost_rows)
+    _draw_panel_b(ax_b, cost_rows, show_title=False)
     fig_b.tight_layout()
     fig_b.savefig(FIGURE_B_PDF, format="pdf", bbox_inches="tight")
     plt.close(fig_b)

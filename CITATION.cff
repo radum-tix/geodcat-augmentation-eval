@@ -14,8 +14,11 @@ authors:
     affiliation: University POLITEHNICA of Bucharest (UPB)
   - family-names: Soares
     given-names: Filipi Miranda
-    affiliation: Mathématiques, Informatique et STatistique pour l’Environnement et l’Agronomie (MISTEA)
-    orcid: https://orcid.org/0000-0002-0674-7960
+    affiliation: Mathématiques, Informatique et STatistique pour l’Environnement et l’Agronomie (MISTEA), University of Montpellier, INRAE & Institut Agro
+  - family-names: Jonquet
+    given-names: Clément
+    affiliation: Mathématiques, Informatique et STatistique pour l’Environnement et l’Agronomie (MISTEA), University of Montpellier, INRAE & Institut Agro
+    orcid: https://orcid.org/0000-0002-2404-1582
   - family-names: García
     given-names: Roberto
     affiliation: Universitat de Lleida
@@ -56,6 +59,8 @@ preferred-citation:
       given-names: Alexandru
     - family-names: Soares
       given-names: Filipi Miranda
+    - family-names: Jonquet
+      given-names: Clément
     - family-names: García
       given-names: Roberto
     - family-names: Ciobanu
